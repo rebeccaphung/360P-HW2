@@ -21,7 +21,9 @@ public class FairUnifanBathroom {
 			}
 
 			bathroomCount++;
+			lineNumInBathroom++;
 			isTrashInBathroom = false;
+			notifyAll();
 		}catch(InterruptedException e){}
 
 	}
@@ -36,20 +38,20 @@ public class FairUnifanBathroom {
 			}
 
 			bathroomCount++;
+			lineNumInBathroom++;
 			isTrashInBathroom = true;
+			notifyAll();
 		}catch(InterruptedException e){}
 	}
 
 	public synchronized void leaveBathroomUT() {
 		bathroomCount--;
-		lineNumInBathroom++;
 
 		notifyAll();
 	}
 
 	public synchronized void leaveBathroomOU() {
 		bathroomCount--;
-		lineNumInBathroom++;
 
 		notifyAll();
 	}
