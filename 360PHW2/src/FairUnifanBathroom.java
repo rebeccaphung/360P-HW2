@@ -8,62 +8,50 @@ public class FairUnifanBathroom {
 	boolean isTrashInBathroom = false;
 	int bathroomCount = 0;
 	int lineCount = 0;
-	int lineNumInBathroom = 0;
-	ThreadLocal<Integer> lineNumber = new ThreadLocal<>();
+	int lineNumInBathroom = 1;
+	ThreadLocal<Integer> lineNumber = new ThreadLocal<Integer>();
 
-	public synchronized void enterBathroomUT() throws InterruptedException {
-		lineCount++;
-		lineNumber.set(lineCount);
+	public synchronized void enterBathroomUT() {
+		try {
+			lineCount++;
+			lineNumber.set(lineCount);
 
-		while(lineNumber.get() != lineNumInBathroom){
-			wait();
-		}
+			while (lineNumber.get() != lineNumInBathroom || (isTrashInBathroom && bathroomCount > 0) || bathroomCount == 5) {
+				wait();
+			}
 
-		while(isTrashInBathroom && bathroomCount > 0){
-			wait();
-		}
-		while(bathroomCount == 5) {
-			wait();
-		}
-
-		bathroomCount++;
-		isTrashInBathroom = false;
+			bathroomCount++;
+			isTrashInBathroom = false;
+		}catch(InterruptedException e){}
 
 	}
 
-	public synchronized void enterBathroomOU() throws InterruptedException {
-		lineCount++;
-		lineNumber.set(lineCount);
+	public synchronized void enterBathroomOU() {
+		try {
+			lineCount++;
+			lineNumber.set(lineCount);
 
-		while(lineNumber.get() != lineNumInBathroom){
-			wait();
-		}
+			while (lineNumber.get() != lineNumInBathroom || (!isTrashInBathroom && bathroomCount > 0) || bathroomCount == 5) {
+				wait();
+			}
 
-		while(!isTrashInBathroom && bathroomCount > 0){
-			wait();
-		}
-		while(bathroomCount == 5) {
-			wait();
-		}
-
-		bathroomCount++;
-		isTrashInBathroom = true;
+			bathroomCount++;
+			isTrashInBathroom = true;
+		}catch(InterruptedException e){}
 	}
 
 	public synchronized void leaveBathroomUT() {
 		bathroomCount--;
+		lineNumInBathroom++;
 
-		if(bathroomCount == 0){
-			notifyAll();
-		}
+		notifyAll();
 	}
 
 	public synchronized void leaveBathroomOU() {
 		bathroomCount--;
+		lineNumInBathroom++;
 
-		if(bathroomCount == 0){
-			notifyAll();
-		}
+		notifyAll();
 	}
 
 	/*
